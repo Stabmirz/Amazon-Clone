@@ -1,21 +1,47 @@
 import styled from 'styled-components'
+import {db} from "../firebase"
 
-function Product() {
+function Product({id,title,price,image,rating }) {
+
+    const addToCart =()=>{
+        const cartItem = db.collection("cartItems").doc(id);
+        console.log(id)
+        cartItem.get()
+        .then((doc)=>{
+            console.log(doc)
+            if(doc.exists){
+                cartItem.update({
+                    quantity:doc.data().quantity + 1
+                })
+            }else{
+                db.collection("cartItems").doc(id).set({
+                    image:image,
+                    name:title,
+                    price:price,
+                    quantity:1
+                })
+            }
+        })
+    }
     return (
         <Container>
             <Title>
-                Ipad pro
+                {title}
             </Title>
             <Price>
-                $1200.00
+            ${price}
             </Price>
             <Rating>
-            ⭐⭐⭐⭐⭐
+                {
+                    Array(rating)
+                    .fill()
+                    .map(rating=> <p>⭐</p>)
+                }
             </Rating>
-            <Image src="https://images.pricerunner.com/product/1200x630/1869451292/Apple-iPad-Pro-(2018)-12.9-512GB.jpg"/>
+            <Image src={image}/>
             <ActionSection>
-                <AddToCartButton>
-                    Add to Cart
+                <AddToCartButton onClick={addToCart}>
+                    Add To Cart
                 </AddToCartButton>
             </ActionSection>
         </Container>
@@ -40,7 +66,7 @@ const Price = styled.span`
     margin-top:3px;
 `
 const Rating = styled.div`
-
+    display:flex;
 `
 const Image = styled.img`
     max-height:200px;
@@ -58,6 +84,7 @@ const AddToCartButton = styled.button`
     background-color: #f0c14b;
     border: 2px solid #a88734;
     border-radius:2px;
+    cursor:pointer;
 `
 
 export default Product
