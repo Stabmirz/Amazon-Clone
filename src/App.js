@@ -4,8 +4,8 @@ import Header from './components/Header'
 import Cart from './components/Cart'
 import Home from './components/Home'
 import {useState, useEffect} from 'react'
-import {db} from './firebase'
-
+import {db, auth} from './firebase'
+import Login from './components/Login'
 import {
   BrowserRouter as Router,
   Switch,
@@ -15,6 +15,7 @@ import {
 
 function App() {
   const [cartItems, setCartItems] = useState([])
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')))
   const getCartItems = () =>{
     db.collection('cartItems').onSnapshot((snapshot)=>{
     const TempItems = snapshot.docs.map((doc)=>(
@@ -31,11 +32,28 @@ function App() {
     getCartItems();
   }, [])
 
+  const signOut = () => {
+    auth.signOut().then(()=>{
+        localStorage.removeItem('user')
+        setUser(null)
+    })
+}
+
   return (
     <Router>
+    {
+      !user ? (
+      <Login setUser={setUser}/>
+    ):(
+   
       <div className="App">
-        <Header/>
+        <Header 
+          user={user} 
+          signOut={signOut} 
+          cartItems={cartItems}
+        />
         <Switch>
+
           <Route path="/cart">
             <Cart cartItems={cartItems}/>
           </Route>
@@ -45,8 +63,10 @@ function App() {
           </Route>
         </Switch>
       </div>
-    </Router>
-
+    
+    )
+  }
+  </Router>
   );
 }
 

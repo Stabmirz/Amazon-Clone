@@ -5,7 +5,6 @@ function Product({id,title,price,image,rating }) {
 
     const addToCart =()=>{
         const cartItem = db.collection("cartItems").doc(id);
-        console.log(id)
         cartItem.get()
         .then((doc)=>{
             console.log(doc)
